@@ -1,23 +1,21 @@
 # mangasfx-cli2026
-Создает фввлайн версию библеотеки sfx с сайта http://thejadednetwork.com/sfx/.
+Создает файл json библеотеки sfx с сайта http://thejadednetwork.com/sfx/ , как и первоначальный проект.
 
-## DISCLAIMER
-Doesn't contain any actual content from the site. Only the means to download an offline copy of it and use it from the command line.
+## Обратите внимание
+Создается только офлайн-копия части текста сайта. Никакие данные более с сайта не берутся.
 
-## How
-First, use `./download.py` to download the site. Then `./search.py [search terms or leave empty for interactive mode]`.
+## как пользоваться
+Вся инструкция для Windows.
+Подразумевается, что у вас уже стоит Python.
 
+Установите через терминал или командную строку `pip install beautifulsoup4 html5lib requests`. Эти три библеотеки теперь необходимы, чтобы сервер сайтта не послал нафиг.
 
-Установите pip install beautifulsoup4 html5lib requests
-Эти три библеотеки теперь необходимы, чтобы сервер сайтта нек послал нафиг.
+Запустить скаченный файл download.py для скачивания текста библеотеки SFX:
+`python download.py`
 
-Запускаете файл скачивания:
-python download.py
+Во время скачивания окно будет иметь вид:
 
-
-Вовремя скачивания окно будет иметь вид:
-
-___________________
+|  ___________________
 --- Обработка раздела 30/42: http://thejadednetwork.com/sfx/index/ho/ ---
   Страница 1: найдено 15 записей.
   Всего страниц в разделе: 7
@@ -41,6 +39,7 @@ ___________________
 --- Обработка раздела 32/42: http://thejadednetwork.com/sfx/index/mi/ ---
   Страница 1: найдено 7 записей.
   Блок пагинации не найден, раздел состоит из одной страницы.
-___________________
+___________________  |
 
+По завершению в папке, где был сохранен download.py появится файл translations.json
 
