@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+/* ===== НЕ ДЛЯ СЕРВЕРОВ. ЗАПУСК ИСКЛЮЧИТЕЛЬНО ЧЕРЕЗ БРАУЗЕР.\NOT FOR SERVERS. LAUNCH ONLY VIA BROWSER ===== */
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SFX — Японский словарь звукоподражаний</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-page: #f5f3f0;
+            --bg-card: #ffffff;
+            --bg-header: #2c2c2c;
+            --text-primary: #1e1e1e;
+            --text-secondary: #4a4a4a;
+            --text-muted: #7a7a7a;
+            --border-light: #e8e4e0;
+            --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.10);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --color-jp: #c0392b;
+            --color-romaji: #2980b9;
+            --color-en: #27ae60;
+            --color-expl: #8e44ad;
+            --color-accent: #d35400;
+            --transition: 0.25s ease;
+            --font-sans: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+            --font-jp: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 0 20px 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* ===== HEADER ===== */
+        .app-header {
+            background: var(--bg-header);
+            color: #fff;
+            padding: 24px 30px 20px;
+            border-radius: 0 0 var(--radius) var(--radius);
+            margin-bottom: 28px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px 18px;
+        }
+
+        .app-header h1 {
+            font-weight: 600;
+            font-size: 1.5rem;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .app-header h1 small {
+            font-weight: 400;
+            font-size: 0.85rem;
+            opacity: 0.65;
+            margin-left: 4px;
+        }
+
+        .header-stats {
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.10);
+            padding: 5px 16px;
+            border-radius: 40px;
+            white-space: nowrap;
+        }
+        .header-stats span {
+            font-weight: 600;
+        }
+
+        /* ===== CONTROLS ===== */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 16px;
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            padding: 16px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-card);
+            align-items: center;
+        }
+
+        .search-wrapper {
+            flex: 1 1 260px;
+            position: relative;
+        }
+        .search-wrapper .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.4;
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+        .search-wrapper input {
+            width: 100%;
+            padding: 10px 16px 10px 44px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            background: #fafaf8;
+            transition: border var(--transition), box-shadow var(--transition);
+            outline: none;
+            font-family: var(--font-sans);
+        }
+        .search-wrapper input:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 4px rgba(211, 84, 0, 0.10);
+            background: #fff;
+        }
+        .search-wrapper input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px 12px;
+        }
+        .filter-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-group select {
+            padding: 6px 32px 6px 12px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            background: #fafaf8;
+            font-size: 0.9rem;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a4a4a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            transition: border var(--transition);
+        }
+        .filter-group select:focus {
+            border-color: var(--color-accent);
+        }
+
+        .btn-clear {
+            padding: 6px 16px;
+            border: none;
+            background: #eae7e4;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: background var(--transition), color var(--transition);
+            font-family: var(--font-sans);
+            white-space: nowrap;
+        }
+        .btn-clear:hover {
+            background: #d5d0ca;
+            color: #1e1e1e;
+        }
+
+        .result-count {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-left: auto;
+            white-space: nowrap;
+        }
+        .result-count strong {
+            color: var(--text-primary);
+        }
+
+        /* ===== LIST (spisok) ===== */
+        .cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* ===== CARD ===== */
+        .sfx-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-card);
+            padding: 20px 24px 18px;
+            transition: transform var(--transition), box-shadow var(--transition);
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sfx-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--border-light);
+        }
+
+        .sfx-jp {
+            font-family: var(--font-jp);
+            font-size: 2.0rem;
+            font-weight: 700;
+            color: var(--color-jp);
+            line-height: 1.3;
+            word-break: break-word;
+        }
+        .sfx-jp .jp-var {
+            font-weight: 400;
+            font-size: 1.2rem;
+            color: #b03a2a;
+            margin-left: 6px;
+        }
+        .sfx-jp .jp-var::before {
+            content: "· ";
+            opacity: 0.35;
+            font-weight: 300;
+        }
+
+        .sfx-romaji {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--color-romaji);
+            letter-spacing: 0.3px;
+        }
+        .sfx-romaji .rm-var {
+            font-weight: 400;
+            color: #3a7fa8;
+            margin-left: 4px;
+        }
+        .sfx-romaji .rm-var::before {
+            content: "· ";
+            opacity: 0.4;
+        }
+
+        .sfx-en {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--color-en);
+            padding: 6px 0 2px;
+            border-top: 1px dashed var(--border-light);
+            margin-top: 2px;
+        }
+        .sfx-en .en-var {
+            font-weight: 400;
+            color: #1f8b4a;
+            margin-left: 4px;
+        }
+        .sfx-en .en-var::before {
+            content: "· ";
+            opacity: 0.4;
+        }
+
+        .sfx-expl {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            background: #f8f6f3;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            margin-top: 2px;
+            line-height: 1.5;
+            border-left: 3px solid var(--color-expl);
+        }
+        .sfx-expl .expl-var {
+            display: block;
+            margin-top: 2px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .sfx-expl .expl-var::before {
+            content: "▸ ";
+            opacity: 0.5;
+        }
+
+        /* ===== EMPTY / LOADING / ERROR ===== */
+        .empty-state,
+        .loading-state,
+        .error-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .big-icon,
+        .loading-state .big-icon,
+        .error-state .big-icon {
+            font-size: 3.4rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        .empty-state h3,
+        .loading-state h3,
+        .error-state h3 {
+            font-weight: 500;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+        }
+        .empty-state p,
+        .loading-state p,
+        .error-state p {
+            margin-top: 6px;
+            font-size: 0.95rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-light);
+            border-top-color: var(--color-accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== FILE INPUT (hidden) ===== */
+        #fileInput {
+            display: none;
+        }
+
+        .load-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 32px;
+            background: var(--color-accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background var(--transition);
+            font-family: var(--font-sans);
+        }
+        .load-btn:hover {
+            background: #b34a00;
+        }
+
+        /* ===== HIGHLIGHT ===== */
+        .highlight {
+            background: #fdebd0;
+            padding: 0 2px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #a04000;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 760px) {
+            body {
+                padding: 0 12px 40px;
+            }
+            .app-header {
+                padding: 18px 16px 14px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .app-header h1 {
+                font-size: 1.2rem;
+            }
+            .header-stats {
+                align-self: flex-start;
+                font-size: 0.8rem;
+                padding: 4px 14px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 14px 16px;
+                gap: 10px;
+            }
+            .search-wrapper {
+                flex: 1 1 auto;
+            }
+            .filter-group {
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            .result-count {
+                margin-left: 0;
+                text-align: right;
+                font-size: 0.8rem;
+            }
+            .sfx-card {
+                padding: 16px 18px 14px;
+            }
+            .sfx-jp {
+                font-size: 1.6rem;
+            }
+            .sfx-en {
+                font-size: 1rem;
+            }
+            .sfx-romaji {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .app-header h1 {
+                font-size: 1rem;
+                flex-wrap: wrap;
+            }
+            .filter-group select {
+                padding: 4px 26px 4px 8px;
+                font-size: 0.8rem;
+            }
+            .btn-clear {
+                padding: 4px 12px;
+                font-size: 0.8rem;
+            }
+            .sfx-jp {
+                font-size: 1.3rem;
+            }
+            .sfx-expl {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-page);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc7c0;
+            border-radius: 12px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b5aea5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="app-header">
+            <h1>
+                📖 SFX-словарь
+                <small>японские звукоподражания</small>
+            </h1>
+            <div class="header-stats">
+                Всего: <span id="totalCount">0</span> записей
+            </div>
+        </header>
+
+        <!-- ===== CONTROLS ===== -->
+        <section class="controls">
+            <div class="search-wrapper">
+                <span class="icon">🔍</span>
+                <input
+                type="text"
+                id="searchInput"
+                placeholder="Поиск по японскому, ромадзи, переводу…"
+                autofocus
+                />
+            </div>
+
+            <div class="filter-group">
+                <label>
+                    📂 Сортировка
+                    <select id="sortSelect">
+                        <option value="japanese">по японскому</option>
+                        <option value="romaji">по ромадзи</option>
+                        <option value="english">по переводу</option>
+                    </select>
+                </label>
+                <label>
+                    🔄
+                    <select id="orderSelect">
+                        <option value="asc">А → Я</option>
+                        <option value="desc">Я → А</option>
+                    </select>
+                </label>
+                <button class="btn-clear" id="clearBtn">✕ Сбросить</button>
+            </div>
+
+            <div class="result-count">
+                Найдено: <strong id="resultCount">0</strong>
+            </div>
+        </section>
+
+        <!-- ===== LIST ===== -->
+        <div class="cards-list" id="cardsList">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <div>Загрузка данных…</div>
+            </div>
+        </div>
+
+        <!-- ===== скрытый инпут для выбора файла ===== -->
+        <input type="file" id="fileInput" accept=".json" />
+    </div>
+
+    <script>
+        // ============================================================
+        //  DATA
+        // ============================================================
+        let allEntries = [];
+        let filteredEntries = [];
+
+        // DOM refs
+        const list = document.getElementById('cardsList');
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const orderSelect = document.getElementById('orderSelect');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultCount = document.getElementById('resultCount');
+        const totalCount = document.getElementById('totalCount');
+        const fileInput = document.getElementById('fileInput');
+
+        // ============================================================
+        //  HELPERS
+        // ============================================================
+        function normalize(str) {
+            return str.normalize('NFKC').toLowerCase().trim();
+        }
+
+        function joinArray(arr) {
+            return Array.isArray(arr) ? arr.join(' ') : '';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function highlightText(text, query) {
+            if (!query || !text) return escapeHtml(text);
+            const q = normalize(query);
+            const lower = normalize(text);
+            if (!lower.includes(q)) return escapeHtml(text);
+
+            const idx = lower.indexOf(q);
+            const before = text.slice(0, idx);
+            const match = text.slice(idx, idx + q.length);
+            const after = text.slice(idx + q.length);
+
+            return escapeHtml(before) +
+                `<span class="highlight">${escapeHtml(match)}</span>` +
+                highlightText(after, query);
+        }
+
+        function matchesEntry(entry, query) {
+            if (!query) return true;
+            const q = normalize(query);
+            const fields = [
+                ...entry.japanese,
+                ...entry.romaji,
+                ...entry.english,
+                ...entry.explanation
+            ];
+            return fields.some(f => normalize(f).includes(q));
+        }
+
+        function getSortValue(entry, field) {
+            if (field === 'japanese') return joinArray(entry.japanese) || '';
+            if (field === 'romaji') return joinArray(entry.romaji) || '';
+            if (field === 'english') return joinArray(entry.english) || '';
+            return '';
+        }
+
+        // ============================================================
+        //  RENDER
+        // ============================================================
+        function render() {
+            const query = searchInput.value.trim();
+            const sortField = sortSelect.value;
+            const sortOrder = orderSelect.value;
+
+            let filtered = allEntries;
+            if (query) {
+                filtered = allEntries.filter(entry => matchesEntry(entry, query));
+            }
+
+            const order = sortOrder === 'asc' ? 1 : -1;
+            filtered.sort((a, b) => {
+                const va = getSortValue(a, sortField);
+                const vb = getSortValue(b, sortField);
+                return va.localeCompare(vb, 'ru', { sensitivity: 'base' }) * order;
+            });
+
+            filteredEntries = filtered;
+            resultCount.textContent = filtered.length;
+            totalCount.textContent = allEntries.length;
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="big-icon">🔎</div>
+                        <h3>Ничего не найдено</h3>
+                        <p>Попробуйте изменить запрос или сбросить фильтры</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (const entry of filtered) {
+                const jpDisplay = entry.japanese.map((v, i) => {
+                    const highlighted = highlightText(v, query);
+                    return i === 0 ? highlighted : `<span class="jp-var">${highlighted}</span>`;
+                }).join(' ');
+
+                const rmDisplay = entry.romaji.map((v, i) => {
+                    const highlighted = highlightText(v, query);
+                    return i === 0 ? highlighted : `<span class="rm-var">${highlighted}</span>`;
+                }).join(' ');
+
+                const enDisplay = entry.english.map((v, i) => {
+                    const highlighted = highlightText(v, query);
+                    return i === 0 ? highlighted : `<span class="en-var">${highlighted}</span>`;
+                }).join(' ');
+
+                const expl = joinArray(entry.explanation);
+                const explDisplay = entry.explanation.map((v, i) => {
+                    const highlighted = highlightText(v, query);
+                    return i === 0 ? highlighted : `<span class="expl-var">${highlighted}</span>`;
+                }).join(' ');
+
+                html += `
+                    <div class="sfx-card">
+                        <div class="sfx-jp">${jpDisplay}</div>
+                        <div class="sfx-romaji">${rmDisplay}</div>
+                        <div class="sfx-en">${enDisplay}</div>
+                        ${expl ? `<div class="sfx-expl">${explDisplay}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            list.innerHTML = html;
+        }
+
+        // ============================================================
+        //  LOAD DATA (localStorage + fetch + file input fallback)
+        // ============================================================
+        function loadFromData(data) {
+            if (!Array.isArray(data) || data.length === 0) {
+                list.innerHTML = `
+                    <div class="error-state">
+                        <div class="big-icon">⚠️</div>
+                        <h3>Некорректные данные</h3>
+                        <p>Файл пуст или имеет неверную структуру.</p>
+                    </div>
+                `;
+                return false;
+            }
+            allEntries = data;
+            render();
+            // сохраняем в localStorage
+            try {
+                localStorage.setItem('sfxData', JSON.stringify(data));
+            } catch (e) { /* игнорируем */ }
+            return true;
+        }
+
+        function showLoadButton() {
+            list.innerHTML = `
+                <div class="error-state">
+                    <div class="big-icon">📂</div>
+                    <h3>Выберите файл translations.json</h3>
+                    <p>Нажмите кнопку ниже и укажите файл из папки с программой.</p>
+                    <button class="load-btn" id="manualLoadBtn">Выбрать файл</button>
+                </div>
+            `;
+            document.getElementById('manualLoadBtn').addEventListener('click', () => {
+                fileInput.click();
+            });
+        }
+
+        function loadFromStorage() {
+            try {
+                const stored = localStorage.getItem('sfxData');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (Array.isArray(data) && data.length) {
+                        loadFromData(data);
+                        return true;
+                    }
+                }
+            } catch (e) { /* игнорируем */ }
+            return false;
+        }
+
+        async function loadFromFetch() {
+            try {
+                const response = await fetch('translations.json');
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const data = await response.json();
+                return loadFromData(data);
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function initData() {
+            // 1. Пробуем localStorage
+            if (loadFromStorage()) return;
+
+            // 2. Пробуем fetch (для серверной среды или если файл доступен)
+            const ok = await loadFromFetch();
+            if (ok) return;
+
+            // 3. Если ничего не вышло – показываем кнопку выбора
+            showLoadButton();
+        }
+
+        // ============================================================
+        //  FILE INPUT HANDLER
+        // ============================================================
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const data = JSON.parse(ev.target.result);
+                    if (loadFromData(data)) {
+                        // после успешной загрузки скрываем инпут (сбрасываем)
+                        fileInput.value = '';
+                        // и перерисовываем
+                    } else {
+                        alert('Ошибка: неверный формат файла.');
+                    }
+                } catch (err) {
+                    alert('Ошибка чтения файла: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // ============================================================
+        //  EVENT BINDING
+        // ============================================================
+        searchInput.addEventListener('input', render);
+        sortSelect.addEventListener('change', render);
+        orderSelect.addEventListener('change', render);
+
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            sortSelect.value = 'japanese';
+            orderSelect.value = 'asc';
+            render();
+            searchInput.focus();
+        });
+
+        // debounce
+        let debounceTimer;
+        const originalRender = render;
+        render = function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(originalRender, 120);
+        };
+
+        // ============================================================
+        //  START
+        // ============================================================
+        initData();
+    </script>
+
+</body>
+</html>
